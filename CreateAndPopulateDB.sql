@@ -133,7 +133,7 @@ CREATE TABLE Employee
 	taxFileNumber VARCHAR(10) NOT NULL,
 	bankCode VARCHAR(10) NOT NULL,
 	accountNumber INT NOT NULL,
-	status VARCHAR(30) NOT NULL,
+	status VARCHAR(30) NOT NULL CHECK (status IN ('active', 'onLeave', 'onProbation', 'inactive')) DEFAULT 'active',
 	description TEXT,
 
 	PRIMARY KEY (empNumber),
@@ -181,10 +181,10 @@ CREATE TABLE FoodOrder
 (
 	orderID INT IDENTITY(1,1) NOT NULL,
 	orderDateTime DATETIME NOT NULL,
-	discountAmount SMALLMONEY NOT NULL,
+	discountAmount SMALLMONEY NOT NULL DEFAULT 0.00,
 	tax SMALLMONEY NOT NULL,
 	totalAmountDue SMALLMONEY NOT NULL,
-	status VARCHAR(10) NOT NULL DEFAULT 'processing' CHECK (status IN ('processing', 'complete')),
+	status VARCHAR(10) NOT NULL CHECK (status IN ('processing', 'complete')) DEFAULT 'processing' ,
 	description TEXT,
 	fulfillmentDateTime DATETIME,
 	isDelivery BIT NOT NULL,
@@ -199,7 +199,7 @@ CREATE TABLE FoodOrder
 	PRIMARY KEY (orderID),
 	FOREIGN KEY (discountCode) REFERENCES DiscountProgram(discountCode) ON UPDATE CASCADE ON DELETE NO ACTION,
 	FOREIGN KEY (customerID) REFERENCES Customer(customerID) ON UPDATE CASCADE ON DELETE NO ACTION,
-	-- those two are ultimately coming from the same base table (Employee), which would create two cascading paths. not sure how to fix it apart from this. maybe change employee to one big table with a boolean
+	-- sql server sees there are two cascading paths which MIGHT create a cycle. won't test whether it actually creates one.
 	FOREIGN KEY (workerID) REFERENCES EmployeeInShopWorker(empNumber) ON UPDATE CASCADE ON DELETE NO ACTION,
 	FOREIGN KEY (driverID) REFERENCES EmployeeDeliveryDriver(empNumber) ON UPDATE NO ACTION ON DELETE NO ACTION,
 );
