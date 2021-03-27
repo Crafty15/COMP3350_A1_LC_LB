@@ -200,8 +200,8 @@ CREATE TABLE FoodOrder
 	FOREIGN KEY (discountCode) REFERENCES DiscountProgram(discountCode) ON UPDATE CASCADE ON DELETE NO ACTION,
 	FOREIGN KEY (customerID) REFERENCES Customer(customerID) ON UPDATE CASCADE ON DELETE NO ACTION,
 	-- those two are ultimately coming from the same base table (Employee), which would create two cascading paths. not sure how to fix it apart from this. maybe change employee to one big table with a boolean
-	FOREIGN KEY (workerID) REFERENCES Employee(empNumber) ON UPDATE CASCADE ON DELETE NO ACTION,
-	FOREIGN KEY (driverID) REFERENCES Employee(empNumber) ON UPDATE NO ACTION ON DELETE NO ACTION,
+	FOREIGN KEY (workerID) REFERENCES EmployeeInShopWorker(empNumber) ON UPDATE CASCADE ON DELETE NO ACTION,
+	FOREIGN KEY (driverID) REFERENCES EmployeeDeliveryDriver(empNumber) ON UPDATE NO ACTION ON DELETE NO ACTION,
 );
 GO
 
