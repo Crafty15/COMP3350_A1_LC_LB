@@ -355,49 +355,117 @@ VALUES
 	('2021-03-01 08:00:00','2021-03-01 20:00:00', null, 176.00, 1, 1),
 	('2021-03-01 08:00:00','2021-03-01 20:00:00', null, 176.00, 1, 4)
 GO
-/*
+
 INSERT INTO FoodOrder(orderDateTime, discountAmount, tax, totalAmountDue, status, description, fulfillmentDateTime, isDelivery,
 				orderType, paymentMethod, paymentApprovalNumber, discountCode, customerID, workerID, driverID)
 VALUES
-	(SYSDATETIME(), 00.00, 10.00, 100.00, DEFAULT, 'No nuts plz', SYSDATETIME(), 0, 'phone', 'cash', null, null, 4, null),
-	(SYSDATETIME(), 20.00, 10.00, 100.00, DEFAULT, 'Extra banana', SYSDATETIME(), 1, 'phone', 'cash', null, null, 1, null),
-	(),
-	()
+	('2021-01-01 11:00:00', 10.00, 8.00, 50.12, 'complete', 'All pinapple', '2021-01-01 11:11:11', 0, 'phone', 'card', 021, 'oct2021', 4, 4, null),
+	('2021-02-11 09:00:00', 00.00, 2.00, 18.58, 'complete', 'Vegan', '2021-02-01 09:20:55', 1, 'online', 'cash', null, null, 6, 1, 2),
+	('2021-02-11 13:00:00', 15.00, 12.00, 133.50, 'complete', 'Gluten free', '2021-02-01 13:20:55', 0, 'walk-in', 'card', 003, 'nov2021', 3, 1, null),
+	('2021-03-01 10:00:00', 12.00, 2.00, 66.50, 'complete', 'All pepperoni', '2021-03-01 10:15:55', 1, 'guest', 'card', 002, 'Thurs2021', 3, 1, 3),
+	('2021-03-01 08:00:00', 00.00, 05.00, 40.00, 'complete', 'Extra cheese', '2021-03-01 08:30:00', 1, 'online', 'card', 001, 'E2021', 1, 4, 2),
+	(SYSDATETIME(), 00.00, 10.00, 100.00, DEFAULT, 'No nuts plz', SYSDATETIME(), 0, 'phone', 'cash', null, null, 4, 1, null),
+	(SYSDATETIME(), 5.00, 10.00, 60.00, DEFAULT, 'Extra banana', SYSDATETIME(), 1, 'guest', 'cash', null, 'Sept2021', 1, 4, null),
+	(SYSDATETIME(), 11.00, 10.00, 110.00, DEFAULT, 'No toppings', SYSDATETIME(), 0, 'walk-in', 'cash', null,'Sept2021', 1, 4, null)
 GO
 
-INSERT INTO MenuItem() 
+INSERT INTO MenuItem(name, size, price) 
 VALUES
-	--
-	()
+	('Vegan', 'large', 35.00),
+	('Vegan', 'medium', 25.00),
+	('Vegan', 'small', 15.00),
+	('Vegetarian', 'large', 11.00),
+	('Vegetarian', 'medium', 9.00),
+	('Vegetarian', 'small', 8.00),
+	('Meat eater', 'large', 16.00),
+	('Meat eater', 'medium', 13.00),
+	('Meat eater', 'small', 11.00),
+	('Hawaiian', 'large', 15.00),
+	('Hawaiian', 'medium', 12.00),
+	('Hawaiian', 'small', 10.00)
 GO
 
-INSERT INTO OrderMenuItemRelation()
+INSERT INTO OrderMenuItemRelation(orderID, itemCode, quantity, subtotal)
 VALUES
-	--
-	()
+	(17, 12, 4, 40.00),
+	(16, 9, 4, 44.00),
+	(16, 11, 3, 33.00),
+	(15, 1, 4, 140),
+	(14, 6, 1, 08.00),
+	(14, 9, 1, 11.00),
+	(13, 2, 2, 50.00),
+	(13, 6, 1, 08.00)
 GO
 
-INSERT INTO Ingredient()
+INSERT INTO Ingredient(name, type, description, stockLevel, dateTimeLastStockTake, suggestedCurrentStockLevel, reorderLevel)
 VALUES
-	--
-	()
+	('pizza dough', 'baking', 'Bulk pizza dough, ready to roll and bake', 25, '2021-01-01 11:00:00',25, 2),
+	('mozzarella', 'dairy', 'Bulk mozzarella', 25, '2021-01-01 11:00:00',25, 2),
+	('pepperoni', 'cured meats', 'Bulk pepperoni', 50, '2021-01-01 11:00:00', 40, 8),
+	('vegetables', 'fresh produce', 'bulk vegetables already prepared for toppings', 8, '2021-01-01 11:00:00', 1, 2),
+	('pinapple', 'fresh produce', 'tins of pinapple chunks', 10, '2021-01-01 11:00:00', 3, 2)
 GO
 
-INSERT INTO MenuItemIngredientRelation()
+INSERT INTO MenuItemIngredientRelation(itemCode, ingrCode, quantity)
 VALUES
-	--
-	()
+	(1, 1, 3),
+	(1, 4, 3),
+	(1, 5, 3),
+	(2, 1, 2),
+	(2, 4, 2),
+	(2, 5, 2),
+	(3, 1, 1),
+	(3, 4, 1),
+	(3, 5, 1),
+	(4, 1, 3),
+	(4, 2, 3),
+	(4, 4, 3),
+	(5, 1, 2),
+	(5, 2, 2),
+	(5, 4, 2),
+	(6, 1, 1),
+	(6, 2, 1),
+	(6, 4, 1),
+	(7, 1, 3),
+	(7, 2, 3),
+	(7, 3, 3),
+	(8, 1, 2),
+	(8, 2, 2),
+	(8, 3, 2),
+	(9, 1, 1),
+	(9, 2, 1),
+	(9, 3, 1),
+	(10, 1, 3),
+	(10, 2, 3),
+	(10, 3, 3),
+	(11, 1, 2),
+	(11, 2, 2),
+	(11, 3, 3),
+	(12, 1, 3),
+	(12, 2, 3),
+	(12, 3, 3)
 GO
 
-INSERT INTO Supplier()
+INSERT INTO Supplier(supplierName)
 VALUES
-	--
-	()
+	('Dingleberries fruit'),
+	('Mr Meats'),
+	('Doughboys'),
+	('Pams produce')
 GO
 
-INSERT INTO SupplierOrder()
+INSERT INTO SupplierOrder(ingrCode, supplierID, dateTime)
 VALUES
-	--
-	()
+	(1, 3, '2020-12-01 11:00:00'),
+	(2, 4, '2020-12-01 11:00:00'),
+	(3, 2, '2020-12-01 11:00:00'),
+	(4, 4, '2020-12-01 11:00:00'),
+	(5, 1, '2020-12-01 11:00:00'),
+	(1, 3, '2021-12-01 11:00:00'),
+	(2, 4, '2021-12-01 11:00:00'),
+	(3, 2, '2021-12-01 11:00:00'),
+	(4, 4, '2021-12-01 11:00:00'),
+	(5, 1, '2021-12-01 11:00:00')
 GO
+/*
 */
