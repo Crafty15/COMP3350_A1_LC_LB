@@ -387,14 +387,14 @@ GO
 
 INSERT INTO OrderMenuItemRelation(orderID, itemCode, quantity, subtotal)
 VALUES
-	(17, 12, 4, 40.00),
-	(16, 9, 4, 44.00),
-	(16, 11, 3, 33.00),
-	(15, 1, 4, 140),
-	(14, 6, 1, 08.00),
-	(14, 9, 1, 11.00),
-	(13, 2, 2, 50.00),
-	(13, 6, 1, 08.00)
+	(5, 12, 4, 40.00),
+	(4, 9, 4, 44.00),
+	(4, 11, 3, 33.00),
+	(3, 1, 4, 140),
+	(2, 6, 1, 08.00),
+	(2, 9, 1, 11.00),
+	(1, 2, 2, 50.00),
+	(1, 6, 1, 08.00)
 GO
 
 INSERT INTO Ingredient(name, type, description, stockLevel, dateTimeLastStockTake, suggestedCurrentStockLevel, reorderLevel)
