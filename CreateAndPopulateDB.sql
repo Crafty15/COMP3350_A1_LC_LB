@@ -187,7 +187,7 @@ CREATE TABLE FoodOrder
 	status VARCHAR(10) NOT NULL CHECK (status IN ('processing', 'complete')) DEFAULT 'processing' ,
 	description TEXT,
 	fulfillmentDateTime DATETIME,
-	completeDateTime DATETIME NULL,
+	completeDateTime DATETIME,
 	isDelivery BIT NOT NULL,
 	orderType VARCHAR(10) NOT NULL CHECK (orderType IN ('phone', 'online', 'walk-in', 'guest')),
 	paymentMethod VARCHAR(10) NOT NULL CHECK (paymentMethod IN ('card', 'cash')),
