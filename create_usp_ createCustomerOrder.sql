@@ -64,7 +64,7 @@ CREATE PROCEDURE usp_createCustomerOrder
 	@orderTakeBy INT
 AS
 BEGIN
-	-- create order in order table
+	-- create order in order table, add entries in order menuItem table and decrease stock level in ingredients
 	BEGIN TRY
 
 		-- declare cursor to access rows of items ordered one by one
@@ -94,22 +94,14 @@ BEGIN
 			-- while still more rows
 			WHILE @@FETCH_STATUS = 0
 			BEGIN
-				BEGIN TRY
-					-- get the price for each item, multiply with quantity and add it to total
-					SET @itemPrice =
-						(
-							SELECT	price
-							FROM	MenuItem
-							WHERE	itemCode = @itemNumber
-						)
-					SET @totalCost = @totalCost + (@itemPrice * @quantityOrdered)
-
-				END TRY
-				BEGIN CATCH
-					DECLARE @error NVARCHAR(120)
-					SET @error = ERROR_MESSAGE();
-					RAISERROR (@error, 10, 1)
-				END CATCH
+				-- get the price for each item, multiply with quantity and add it to total
+				SET @itemPrice =
+					(
+						SELECT	price
+						FROM	MenuItem
+						WHERE	itemCode = @itemNumber
+					)
+				SET @totalCost = @totalCost + (@itemPrice * @quantityOrdered)
 
 				-- fetch next row
 				FETCH NEXT FROM itemCursor INTO @itemNumber, @quantityOrdered
@@ -148,6 +140,7 @@ BEGIN
 			SET @driverID = NULL
 		END
 
+		----------------------------
 		-- add order in order table
 		INSERT INTO FoodOrder(orderDateTime, discountAmount, tax, totalAmountDue, status, description, fulfillmentDateTime, completeDateTime, isDelivery,
 							  orderType, paymentMethod, paymentApprovalNumber, discountCode, customerID, workerID, driverID)
@@ -159,8 +152,12 @@ BEGIN
 		SET @orderID =
 			(
 				SELECT	*
-				FROM	
+				FROM	FoodOrder
+				WHERE	customerID = @customerID
+					AND	orderDateTime = @orderDateTime
 			)
+
+		--
 
 
 	END TRY
