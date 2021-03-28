@@ -25,9 +25,13 @@ GO
 --Stored procedure to enforce order satisfiability
 CREATE PROCEDURE usp_enforceOrderSatisfiability
 	--input params
-	@itemList ItemsOrderedType READONLY
+	@itemList ItemsOrderedType READONLY,
+	-- output parameters
+	@isFeasible BIT OUTPUT
 AS
 BEGIN
+		SET @isFeasible = 1
+
 		-- declare cursor to access rows of items ordered one by one
         DECLARE itemCursor CURSOR
         FOR
@@ -102,6 +106,7 @@ BEGIN
 						CLOSE ingredientCursor
 						DEALLOCATE ingredientCursor
 						--return 0 as result is false (= one item infeasible to produce)
+						SET @isFeasible = 0
 						RETURN 0
 					END
 

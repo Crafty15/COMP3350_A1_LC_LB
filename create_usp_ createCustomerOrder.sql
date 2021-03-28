@@ -57,12 +57,7 @@ BEGIN
 		-- test whether order is feasible -> check against ingredient's stock level
 
 		DECLARE @feasible BIT
-		EXECUTE usp_enforceOrderSatisfiability @itemList = @items
-
-		--IF ((EXECUTE usp_enforceOrderSatisfiability) = 0)
-		BEGIN
-			PRINT 'uh oh'
-		END
+		EXECUTE usp_enforceOrderSatisfiability @itemList = @items, @isFeasible = @feasible OUT
 
 		-- declare cursor to access rows of items ordered one by one
 		DECLARE itemCursor CURSOR
@@ -70,6 +65,11 @@ BEGIN
 			SELECT	*
 			FROM	@items
 		FOR READ ONLY
+
+		IF (@feasible = 0)
+		BEGIN
+			RAISERROR ('Error: Amount of available ingredients is infeasible for this order', 11, 1)
+		END
 
 		-- declare variables to fetch individual rows
 		DECLARE @itemNumber INT
