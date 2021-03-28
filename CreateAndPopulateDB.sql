@@ -370,7 +370,7 @@ VALUES
 	('2021-02-11 09:00:00', 00.00, 2.00, 18.58, 'complete', 'Vegan', '2021-02-01 09:15:55', '2021-02-01 09:10:55', 1, 'online', 'cash', null, null, 6, 1, 2),
 	('2021-02-11 13:00:00', 15.00, 12.00, 133.50, 'complete', 'Gluten free', '2021-02-01 13:15:55', '2021-02-01 13:10:55', 0, 'walk-in', 'card', 003, 'nov2021', 3, 1, null),
 	('2021-03-01 10:00:00', 12.00, 2.00, 66.50, 'complete', 'All pepperoni', '2021-03-01 10:15:55', '2021-03-01 10:10:55', 1, 'guest', 'card', 002, 'Thurs2021', 3, 1, 3),
-	('2021-03-01 08:00:00', 00.00, 05.00, 40.00, 'complete', 'Extra cheese', '2021-03-01 09:30:00', '2021-03-01 09:30:00', 1, 'online', 'card', 001, 'E2021', 1, 4, 2),
+	('2021-03-01 08:00:00', 20.00, 05.00, 40.00, 'complete', 'Extra cheese', '2021-03-01 09:30:00', '2021-03-01 09:30:00', 1, 'online', 'card', 001, 'E2021', 1, 4, 2),
 	(SYSDATETIME(), 00.00, 10.00, 100.00, DEFAULT, 'No nuts plz', SYSDATETIME(), null, 0, 'phone', 'cash', null, null, 4, 1, null),
 	('2021-03-28 17:22:00', 5.00, 10.00, 60.00, DEFAULT, 'Extra banana', '2021-03-28 17:42:00', null, 1, 'guest', 'cash', null, 'Sept2021', 1, 4, null),
 	(SYSDATETIME(), 11.00, 10.00, 110.00, DEFAULT, 'No toppings', SYSDATETIME(), null, 0, 'walk-in', 'cash', null,'Sept2021', 1, 4, null)
@@ -409,8 +409,8 @@ VALUES
 	('pizza dough', 'baking', 'Bulk pizza dough, ready to roll and bake', 25, '2021-01-01 11:00:00',25, 2),
 	('mozzarella', 'dairy', 'Bulk mozzarella', 25, '2021-01-01 11:00:00',25, 2),
 	('pepperoni', 'cured meats', 'Bulk pepperoni', 50, '2021-01-01 11:00:00', 40, 8),
-	('vegetables', 'fresh produce', 'bulk vegetables already prepared for toppings', 8, '2021-01-01 11:00:00', 1, 2),
-	('pinapple', 'fresh produce', 'tins of pinapple chunks', 10, '2021-01-01 11:00:00', 3, 2)
+	('vegetables', 'fresh produce', 'bulk vegetables already prepared for toppings', 8, '2021-01-01 11:00:00', 6, 2),
+	('pinapple', 'fresh produce', 'tins of pinapple chunks', 10, '2021-01-01 11:00:00', 6, 2)
 GO
 
 INSERT INTO MenuItemIngredientRelation(itemCode, ingrCode, quantity)

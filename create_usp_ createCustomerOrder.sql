@@ -79,6 +79,9 @@ AS
 BEGIN
 	-- create order in order table, add entries in order menuItem table and decrease stock level in ingredients
 	BEGIN TRY
+	BEGIN TRANSACTION
+		-- test whether order is feasible -> check against ingredient's stock level
+		
 
 		-- declare cursor to access rows of items ordered one by one
 		DECLARE itemCursor CURSOR
@@ -126,12 +129,18 @@ BEGIN
 		
 		-- calcluate discount
 		DECLARE @discountPercentage DECIMAL
-		SET @discountPercentage = 
-			(
-				SELECT	discountPercentage
-				FROM	DiscountProgram
-				WHERE	discountCode = @discountCode
-			)
+		IF(@discountCode IS NULL)
+			SET @discountPercentage = 0
+		ELSE
+		BEGIN
+			SET @discountPercentage = 
+				(
+					SELECT	discountPercentage
+					FROM	DiscountProgram
+					WHERE	discountCode = @discountCode
+				)
+		END
+		
 		DECLARE @discountAmount SMALLMONEY
 		SET @discountAmount = @discountPercentage/100 * @totalCost
 
@@ -153,7 +162,7 @@ BEGIN
 			SET @driverID = NULL
 		END
 
-		----------------------------
+		------>
 		-- add order in order table
 		INSERT INTO FoodOrder(orderDateTime, discountAmount, tax, totalAmountDue, status, description, fulfillmentDateTime, completeDateTime, isDelivery,
 							  orderType, paymentMethod, paymentApprovalNumber, discountCode, customerID, workerID, driverID)
@@ -169,6 +178,8 @@ BEGIN
 				WHERE	customerID = @customerID
 					AND	orderDateTime = @orderDateTime
 			)
+
+		------------------
 
 		-- add mapping in OrderMenuItemRelation and update ingredient's suggestedCurrentStockLevel
 		-- step through list of items again
@@ -200,8 +211,10 @@ BEGIN
 			INSERT INTO OrderMenuItemRelation(orderID, itemCode, quantity, subtotal)
 			VALUES	(@orderID, @itemNumber, @quantityOrdered, @subtotal)
 
+			------------
 			-- also for each item, check which ingredients are needed
 			-- get all the ingredients mapped to that ordered menu item
+			DELETE @ingredientList
 			INSERT INTO @ingredientList
 					SELECT	ingrCode, quantity
 					FROM	MenuItemIngredientRelation
@@ -231,10 +244,19 @@ BEGIN
 					-- calculate needed number of ingredients
 					DECLARE @stockDecrease INT
 					SET @stockDecrease = @ingrQuantity * @quantityOrdered
+					
+					/*
+					PRINT @itemNumber
+					PRINT @ingrCode
+					PRINT @quantityOrdered
+					PRINT @ingrQuantity
+					PRINT @stockdecrease
+					*/
 
 					-- update ingredient's suggestedCurrentStockLevel
 					UPDATE	Ingredient
 					SET		suggestedCurrentStockLevel = suggestedCurrentStockLevel - @stockDecrease
+					WHERE	ingrCode = @ingrCode
 
 					-- fetch next row
 					FETCH NEXT FROM ingredientCursor INTO @ingrCode, @ingrQuantity
@@ -253,12 +275,20 @@ BEGIN
 		-- close cursor
 		CLOSE itemCursor
 
-
+	COMMIT TRANSACTION
 	END TRY
 	BEGIN CATCH
 			DECLARE @error NVARCHAR(120)
 			SET @error = ERROR_MESSAGE();
 			RAISERROR (@error, 10, 1)
+			PRINT 'Hi Liam'
+
+			
+			IF(@@TRANCOUNT > 0)
+			BEGIN
+				ROLLBACK TRANSACTION
+			END
+
 	END CATCH
 
 
