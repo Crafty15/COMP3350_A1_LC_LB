@@ -30,5 +30,15 @@ raise error if there is one???
 */
 
 
+USE COMP3320_A1_PizzaDB
+GO
+
+DROP PROCEDURE usp_createCustomerOrder
+GO
+
+DROP TYPE usp_createCustomerOrder
+GO
+
+
 
 
