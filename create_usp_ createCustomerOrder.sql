@@ -39,6 +39,9 @@ GO
 DROP TYPE ItemsOrderedType
 GO
 
+DROP TYPE MenuItemIngredientType
+GO
+
 -- set up TVP for items ordered
 CREATE TYPE ItemsOrderedType AS TABLE
 (
@@ -46,6 +49,16 @@ CREATE TYPE ItemsOrderedType AS TABLE
 	quantityOrdered INT,
 
 	PRIMARY KEY (itemNumber, quantityOrdered)
+)
+GO
+
+-- set up TVP for list of menuItem - ingredients mapping
+CREATE TYPE MenuItemIngredientType AS TABLE
+(
+	ingrCode INT,
+	quantity INT,
+
+	PRIMARY KEY (ingrCode, quantity)
 )
 GO
 
@@ -66,6 +79,9 @@ AS
 BEGIN
 	-- create order in order table, add entries in order menuItem table and decrease stock level in ingredients
 	BEGIN TRY
+	BEGIN TRANSACTION
+		-- test whether order is feasible -> check against ingredient's stock level
+		
 
 		-- declare cursor to access rows of items ordered one by one
 		DECLARE itemCursor CURSOR
@@ -113,12 +129,18 @@ BEGIN
 		
 		-- calcluate discount
 		DECLARE @discountPercentage DECIMAL
-		SET @discountPercentage = 
-			(
-				SELECT	discountPercentage
-				FROM	DiscountProgram
-				WHERE	discountCode = @discountCode
-			)
+		IF(@discountCode IS NULL)
+			SET @discountPercentage = 0
+		ELSE
+		BEGIN
+			SET @discountPercentage = 
+				(
+					SELECT	discountPercentage
+					FROM	DiscountProgram
+					WHERE	discountCode = @discountCode
+				)
+		END
+		
 		DECLARE @discountAmount SMALLMONEY
 		SET @discountAmount = @discountPercentage/100 * @totalCost
 
@@ -140,7 +162,7 @@ BEGIN
 			SET @driverID = NULL
 		END
 
-		----------------------------
+		------>
 		-- add order in order table
 		INSERT INTO FoodOrder(orderDateTime, discountAmount, tax, totalAmountDue, status, description, fulfillmentDateTime, completeDateTime, isDelivery,
 							  orderType, paymentMethod, paymentApprovalNumber, discountCode, customerID, workerID, driverID)
@@ -151,25 +173,127 @@ BEGIN
 		DECLARE @orderID INT
 		SET @orderID =
 			(
-				SELECT	*
+				SELECT	orderID
 				FROM	FoodOrder
 				WHERE	customerID = @customerID
 					AND	orderDateTime = @orderDateTime
 			)
 
-		--
+		------------------
 
+		-- add mapping in OrderMenuItemRelation and update ingredient's suggestedCurrentStockLevel
+		-- step through list of items again
+		-- open and populate cursor
+		OPEN itemCursor
 
+		-- get first row
+		FETCH NEXT FROM itemCursor INTO @itemNumber, @quantityOrdered
+
+		-- set up list of ingredients associated with specific item
+		DECLARE @ingredientList MenuItemIngredientType
+
+		-- get item by item from cursor
+		-- while still more rows
+		WHILE @@FETCH_STATUS = 0
+		BEGIN
+			-- calculate subtotal for that item
+			DECLARE @subtotal SMALLMONEY
+
+			SET @itemPrice =
+					(
+						SELECT	price
+						FROM	MenuItem
+						WHERE	itemCode = @itemNumber
+					)
+			SET @subtotal = @itemPrice * @quantityOrdered
+
+			-- insert into table for each item
+			INSERT INTO OrderMenuItemRelation(orderID, itemCode, quantity, subtotal)
+			VALUES	(@orderID, @itemNumber, @quantityOrdered, @subtotal)
+
+			------------
+			-- also for each item, check which ingredients are needed
+			-- get all the ingredients mapped to that ordered menu item
+			DELETE @ingredientList
+			INSERT INTO @ingredientList
+					SELECT	ingrCode, quantity
+					FROM	MenuItemIngredientRelation
+					WHERE	itemCode = @itemNumber
+
+			-- declare cursor to access rows of ingredients of a menuitem one by one
+			DECLARE ingredientCursor CURSOR
+			FOR
+				SELECT	*
+				FROM	@ingredientList
+			FOR READ ONLY
+
+				-- declare variables to fetch individual rows
+				DECLARE @ingrCode INT
+				DECLARE @ingrQuantity INT
+
+				-- open and populate cursor
+				OPEN ingredientCursor
+
+				-- get first row
+				FETCH NEXT FROM ingredientCursor INTO @ingrCode, @ingrQuantity
+
+				-- get ingredient by ingredient from cursor
+				-- while still more rows
+				WHILE @@FETCH_STATUS = 0
+				BEGIN
+					-- calculate needed number of ingredients
+					DECLARE @stockDecrease INT
+					SET @stockDecrease = @ingrQuantity * @quantityOrdered
+					
+					/*
+					PRINT @itemNumber
+					PRINT @ingrCode
+					PRINT @quantityOrdered
+					PRINT @ingrQuantity
+					PRINT @stockdecrease
+					*/
+
+					-- update ingredient's suggestedCurrentStockLevel
+					UPDATE	Ingredient
+					SET		suggestedCurrentStockLevel = suggestedCurrentStockLevel - @stockDecrease
+					WHERE	ingrCode = @ingrCode
+
+					-- fetch next row
+					FETCH NEXT FROM ingredientCursor INTO @ingrCode, @ingrQuantity
+				END
+
+				-- close cursor
+				CLOSE ingredientCursor
+
+			-- removes the cursor reference
+			DEALLOCATE ingredientCursor
+
+			-- fetch next row
+			FETCH NEXT FROM itemCursor INTO @itemNumber, @quantityOrdered
+		END
+
+		-- close cursor
+		CLOSE itemCursor
+
+	COMMIT TRANSACTION
 	END TRY
 	BEGIN CATCH
 			DECLARE @error NVARCHAR(120)
 			SET @error = ERROR_MESSAGE();
 			RAISERROR (@error, 10, 1)
+			PRINT 'Hi Liam'
+
+			
+			IF(@@TRANCOUNT > 0)
+			BEGIN
+				ROLLBACK TRANSACTION
+			END
+
 	END CATCH
 
 
 	-- removes the cursor reference
-			DEALLOCATE itemCursor
+	DEALLOCATE itemCursor
 END
 GO
 
