@@ -29,37 +29,11 @@ raise error if there is one???
 
 */
 
-USE COMP3320_A1_PizzaDB
+USE COMP3350_A1_PizzaDB
 GO
 
 -- some cleanup
 DROP PROCEDURE usp_createCustomerOrder
-GO
-
-DROP TYPE ItemsOrderedType
-GO
-
-DROP TYPE MenuItemIngredientType
-GO
-
--- set up TVP for items ordered
-CREATE TYPE ItemsOrderedType AS TABLE
-(
-	itemNumber INT,
-	quantityOrdered INT,
-
-	PRIMARY KEY (itemNumber, quantityOrdered)
-)
-GO
-
--- set up TVP for list of menuItem - ingredients mapping
-CREATE TYPE MenuItemIngredientType AS TABLE
-(
-	ingrCode INT,
-	quantity INT,
-
-	PRIMARY KEY (ingrCode, quantity)
-)
 GO
 
 -- create stored procedure to add a customer order
@@ -81,7 +55,14 @@ BEGIN
 	BEGIN TRY
 	BEGIN TRANSACTION
 		-- test whether order is feasible -> check against ingredient's stock level
-		
+
+		DECLARE @feasible BIT
+		EXECUTE usp_enforceOrderSatisfiability @itemList = @items
+
+		--IF ((EXECUTE usp_enforceOrderSatisfiability) = 0)
+		BEGIN
+			PRINT 'uh oh'
+		END
 
 		-- declare cursor to access rows of items ordered one by one
 		DECLARE itemCursor CURSOR
@@ -281,8 +262,6 @@ BEGIN
 			DECLARE @error NVARCHAR(120)
 			SET @error = ERROR_MESSAGE();
 			RAISERROR (@error, 10, 1)
-			PRINT 'Hi Liam'
-
 			
 			IF(@@TRANCOUNT > 0)
 			BEGIN

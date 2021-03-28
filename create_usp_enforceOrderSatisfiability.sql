@@ -16,40 +16,23 @@ for each item
 	yes- return true
 */
 
-USE COMP3320_A1_PizzaDB
+USE COMP3350_A1_PizzaDB
 GO
 
--- set up TVP for items ordered
-CREATE TYPE ItemsOrderedType AS TABLE
-(
-    itemNumber INT,
-    quantityOrdered INT,
-
-    PRIMARY KEY (itemNumber, quantityOrdered)
-)
-GO
-
--- set up TVP for list of menuItem - ingredients mapping
-CREATE TYPE MenuItemIngredientType AS TABLE
-(
-    ingrCode INT,
-    quantity INT,
-
-    PRIMARY KEY (ingrCode, quantity)
-)
+DROP PROCEDURE usp_enforceOrderSatisfiability
 GO
 
 --Stored procedure to enforce order satisfiability
 CREATE PROCEDURE usp_enforceOrderSatisfiability
 	--input params
-	@items ItemsOrderedType READONLY
+	@itemList ItemsOrderedType READONLY
 AS
 BEGIN
 		-- declare cursor to access rows of items ordered one by one
         DECLARE itemCursor CURSOR
         FOR
             SELECT    *
-            FROM    @items
+            FROM    @itemList
         FOR READ ONLY
 
         -- declare variables to fetch individual rows
@@ -102,21 +85,23 @@ BEGIN
 					-- calculate needed number of ingredients
 					DECLARE @stockDecrease INT
 					SET @stockDecrease = @ingrQuantity * @quantityOrdered
-					--get 
-					--Check if order can be satisfied
+
+					-- get suggested curretn stock level for ingredient
 					DECLARE @suggestedCurrentStockLevel INT
-					SET @suggestedCurrentStockLevel = (
-						SELECT	i.suggestedCurrentStockLevel
-						FROM	Ingredient i
-						WHERE i.ingrCode = @ingrCode
-					)
-					-- if (stockDecrease - suggestedCurrentStockLevel) < 0
-					IF((@stockDecrease > @suggestedCurrentStockLevel))
+					SET @suggestedCurrentStockLevel =
+						(
+							SELECT	i.suggestedCurrentStockLevel
+							FROM	Ingredient i
+							WHERE	i.ingrCode = @ingrCode
+						)
+
+					-- check if order can be satisfied
+					IF(@stockDecrease > @suggestedCurrentStockLevel)
 					BEGIN
 						-- close cursor and remove reference
 						CLOSE ingredientCursor
 						DEALLOCATE ingredientCursor
-						--return 0 as result is false
+						--return 0 as result is false (= one item infeasible to produce)
 						RETURN 0
 					END
 
@@ -138,7 +123,7 @@ BEGIN
 		CLOSE itemCursor
 		DEALLOCATE itemCursor
 
-		--return 1 as result is true
+		--return 1 as result is true (= feasible)
 		RETURN 1
 END
 GO

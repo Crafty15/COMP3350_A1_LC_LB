@@ -5,6 +5,9 @@ Liam Craft		c3339847
 Lukas Binninger c3332295
 */
 
+USE COMP3350_A1_PizzaDB
+GO
+
 -- create variables to hold input data for stored procedure
 DECLARE @someCustomerID INT
 DECLARE	@someItems ItemsOrderedType

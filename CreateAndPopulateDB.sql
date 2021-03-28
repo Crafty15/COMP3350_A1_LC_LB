@@ -14,19 +14,19 @@ Lukas Binninger c3332295
 -- create database
 USE master
 GO
-ALTER DATABASE COMP3320_A1_PizzaDB SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
-GO
+--ALTER DATABASE COMP3350_A1_PizzaDB SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+--GO
 
-IF EXISTS (SELECT * FROM sysdatabases WHERE name='COMP3320_A1_PizzaDB')
+IF EXISTS (SELECT * FROM sysdatabases WHERE name='COMP3350_A1_PizzaDB')
 BEGIN
-	DROP DATABASE COMP3320_A1_PizzaDB
+	DROP DATABASE COMP3350_A1_PizzaDB
 END
 GO
 
-CREATE DATABASE COMP3320_A1_PizzaDB
+CREATE DATABASE COMP3350_A1_PizzaDB
 GO
 
-USE COMP3320_A1_PizzaDB
+USE COMP3350_A1_PizzaDB
 GO
 
 -- in case you want to use your own database and just add the tables,
@@ -474,5 +474,30 @@ VALUES
 	(4, 4, '2021-12-01 11:00:00'),
 	(5, 1, '2021-12-01 11:00:00')
 GO
-/*
-*/
+
+
+-- set up some TVPs we need
+DROP TYPE ItemsOrderedType
+GO
+DROP TYPE MenuItemIngredientType
+GO
+
+-- set up TVP for items ordered
+CREATE TYPE ItemsOrderedType AS TABLE
+(
+	itemNumber INT,
+	quantityOrdered INT,
+
+	PRIMARY KEY (itemNumber, quantityOrdered)
+)
+GO
+
+-- set up TVP for list of menuItem - ingredients mapping
+CREATE TYPE MenuItemIngredientType AS TABLE
+(
+	ingrCode INT,
+	quantity INT,
+
+	PRIMARY KEY (ingrCode, quantity)
+)
+GO
