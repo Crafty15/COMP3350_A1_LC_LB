@@ -45,7 +45,7 @@ CREATE TYPE ItemsOrderedType AS TABLE
 	itemNumber INT,
 	quantityOrdered INT,
 
-	PRIMARY KEY (itemNUmber, quantityOrdered)
+	PRIMARY KEY (itemNumber, quantityOrdered)
 )
 GO
 
@@ -64,22 +64,45 @@ CREATE PROCEDURE usp_createCustomerOrder
 	@orderTakeBy INT
 AS
 BEGIN
+	-- create order in order table
+	BEGIN TRY
+		DECLARE @discountPercentage DECIMAL
+		SET @discountPercentage = 
+			(
+				SELECT	discountPercentage
+				FROM	DiscountProgram
+				WHERE	discountCode = @discountCode
+			)
+
+
+
+		INSERT INTO FoodOrder(orderDateTime, discountAmount, tax, totalAmountDue, status, description, fulfillmentDateTime, completeDateTime, isDelivery,
+				orderType, paymentMethod, paymentApprovalNumber, discountCode, customerID, workerID, driverID)
+		VALUES
+			(@orderDateTime, 10.00, 8.00, 50.12, 'complete', 'something', @dateTimeOrderNeedsFulfilling, '2021-01-01 11:10:11', 0, 'phone', 'card', 021, @discountCode, 4, 4, null),
+	END TRY
+	BEGIN CATCH
+			DECLARE @error NVARCHAR(120)
+			SET @error = ERROR_MESSAGE();
+			RAISERROR (@error, 10, 1)
+	END CATCH
+
+
 	-- declare cursor to access rows of items ordered one by one
-	DECLARE myCursor CURSOR
+	DECLARE itemCursor CURSOR
 	FOR
 		SELECT	*
-		FROM	@newRegistrations
+		FROM	@items
 	FOR READ ONLY
 
 	-- open and populate cursor
-	OPEN myCursor
+	OPEN itemCursor
 
 	-- declare variables to fetch individual rows
-	DECLARE @rowStdNo CHAR(5)
-	DECLARE @rowCourseID CHAR(8)
-	DECLARE @rowSemesterID INT
+	DECLARE @itemNumber INT
+	DECLARE @quantityOrdered INT
 
-	FETCH NEXT FROM myCursor INTO @rowStdNo, @rowCourseID, @rowSemesterID
+	FETCH NEXT FROM itemCursor INTO @itemNumber, @quantityOrdered
 
 	-- insert row by row from cursor
 	-- while still more rows
@@ -97,15 +120,15 @@ BEGIN
 		END CATCH
 
 		-- fetch next row
-		FETCH NEXT FROM myCursor INTO @rowStdNo, @rowCourseID, @rowSemesterID
+		FETCH NEXT FROM itemCursor INTO @rowStdNo, @rowCourseID, @rowSemesterID
 		
 	END
 
 	-- close cursor
-	CLOSE myCursor
+	CLOSE itemCursor
 
 	-- removes the cursor reference
-	DEALLOCATE myCursor
+	DEALLOCATE itemCursor
 END
 GO
 
