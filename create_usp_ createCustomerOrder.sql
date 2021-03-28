@@ -29,14 +29,25 @@ raise error if there is one???
 
 */
 
-
 USE COMP3320_A1_PizzaDB
 GO
 
+-- some cleanup
 DROP PROCEDURE usp_createCustomerOrder
 GO
 
 DROP TYPE usp_createCustomerOrder
+GO
+
+-- set up TVP for items ordered
+CREATE TYPE RegisterForCourseType AS TABLE
+(
+	stdNo CHAR(5),
+	courseID CHAR(8),
+	semesterID INT
+
+	PRIMARY KEY (stdNo, courseID, semesterID)
+)
 GO
 
 
