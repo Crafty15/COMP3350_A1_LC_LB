@@ -73,9 +73,7 @@ CREATE TABLE Customer
 	customerID INT IDENTITY(1,1) NOT NULL,
 	firstName VARCHAR(30) NOT NULL,
 	lastName VARCHAR(30) NOT NULL,
-	street VARCHAR(30) NOT NULL,
-	suburb VARCHAR(30) NOT NULL,
-	postcode INT NOT NULL CHECK (postcode < 10000),
+	address VARCHAR(70) NOT NULL,
 
 	PRIMARY KEY (customerID),
 );
@@ -89,6 +87,7 @@ CREATE TABLE CustomerOnlineCustomer
 	phone VARCHAR(30),
 
 	PRIMARY KEY (customerID),
+	UNIQUE (email),
 	FOREIGN KEY (customerID) REFERENCES Customer(customerID) ON UPDATE CASCADE ON DELETE NO ACTION,
 );
 GO
@@ -139,6 +138,9 @@ CREATE TABLE Employee
 	description TEXT,
 
 	PRIMARY KEY (empNumber),
+	UNIQUE (taxFileNumber),
+	UNIQUE (bankCode, accountNumber),
+	UNIQUE (firstName, lastName, street, suburb, postcode),
 	FOREIGN KEY (bankCode) REFERENCES Bank(bankCode) ON UPDATE CASCADE ON DELETE NO ACTION,
 );
 GO
@@ -160,6 +162,7 @@ CREATE TABLE EmployeeDeliveryDriver
 	paymentRatePerDelivery SMALLMONEY NOT NULL,
 
 	PRIMARY KEY (empNumber),
+	UNIQUE (driversLicense),
 	FOREIGN KEY (empNumber) REFERENCES Employee(empNumber) ON UPDATE CASCADE ON DELETE NO ACTION,
 );
 GO
@@ -175,6 +178,7 @@ CREATE TABLE Shift
 	empNumber INT NOT NULL,
 
 	PRIMARY KEY (shiftID),
+	UNIQUE (empNumber, startDateTime, endDateTime),
 	FOREIGN KEY (empNumber) REFERENCES Employee(empNumber) ON UPDATE CASCADE ON DELETE NO ACTION,
 );
 GO
@@ -189,7 +193,7 @@ CREATE TABLE FoodOrder
 	status VARCHAR(10) NOT NULL CHECK (status IN ('processing', 'complete')) DEFAULT 'processing' ,
 	description TEXT,
 	fulfillmentDateTime DATETIME,
-	completeDateTime DATETIME NULL,
+	completeDateTime DATETIME,
 	isDelivery BIT NOT NULL,
 	orderType VARCHAR(10) NOT NULL CHECK (orderType IN ('phone', 'online', 'walk-in', 'guest')),
 	paymentMethod VARCHAR(10) NOT NULL CHECK (paymentMethod IN ('card', 'cash')),
@@ -200,6 +204,8 @@ CREATE TABLE FoodOrder
 	driverID INT,
 
 	PRIMARY KEY (orderID),
+	UNIQUE (orderDateTime, customerID),
+	UNIQUE (orderDateTime, workerID),
 	FOREIGN KEY (discountCode) REFERENCES DiscountProgram(discountCode) ON UPDATE CASCADE ON DELETE NO ACTION,
 	FOREIGN KEY (customerID) REFERENCES Customer(customerID) ON UPDATE CASCADE ON DELETE NO ACTION,
 	-- sql server sees there are two cascading paths which MIGHT create a cycle. won't test whether it actually creates one.
@@ -294,14 +300,14 @@ VALUES
 GO
 
 
-INSERT INTO Customer(firstName, lastName, street, suburb, postcode)
+INSERT INTO Customer(firstName, lastName, address)
 VALUES
-	('Cleetus', 'McFarlane', '123 Redneck St', 'Daytona', 5432),
-	('Phil', 'McCrackin', '89 First St', 'Boolaroo', 2284),
-	('Steph', 'Smith', '1 Hill Rd', 'Lambton', 2267),
-	('Jill', 'Qwerty', '222 School Rd', 'Newcastle', 1123),
-	('Fred', 'Fredson', '67 Test St', 'TestTown', 4444),
-	('Hayden', 'Milkson', '567 Latte rd', 'Ourimbah', 3211)
+	('Cleetus', 'McFarlane', '123 Redneck St, Daytona 5432'),
+	('Phil', 'McCrackin', '89 First St, Boolaroo 2284'),
+	('Steph', 'Smith', '1 Hill Rd, Lambton 2267'),
+	('Jill', 'Qwerty', '222 School Rd, Newcastle 1123'),
+	('Fred', 'Fredson', '67 Test St, TestTown 4444'),
+	('Hayden', 'Milkson', '567 Latte rd, Ourimbah 3211')
 GO
 
 INSERT INTO CustomerOnlineCustomer(customerID, email, password, phone)
@@ -366,7 +372,7 @@ VALUES
 	('2021-03-01 10:00:00', 12.00, 2.00, 66.50, 'complete', 'All pepperoni', '2021-03-01 10:15:55', '2021-03-01 10:10:55', 1, 'guest', 'card', 002, 'Thurs2021', 3, 1, 3),
 	('2021-03-01 08:00:00', 00.00, 05.00, 40.00, 'complete', 'Extra cheese', '2021-03-01 09:30:00', '2021-03-01 09:30:00', 1, 'online', 'card', 001, 'E2021', 1, 4, 2),
 	(SYSDATETIME(), 00.00, 10.00, 100.00, DEFAULT, 'No nuts plz', SYSDATETIME(), null, 0, 'phone', 'cash', null, null, 4, 1, null),
-	(SYSDATETIME(), 5.00, 10.00, 60.00, DEFAULT, 'Extra banana', SYSDATETIME(), null, 1, 'guest', 'cash', null, 'Sept2021', 1, 4, null),
+	('2021-03-28 17:22:00', 5.00, 10.00, 60.00, DEFAULT, 'Extra banana', '2021-03-28 17:42:00', null, 1, 'guest', 'cash', null, 'Sept2021', 1, 4, null),
 	(SYSDATETIME(), 11.00, 10.00, 110.00, DEFAULT, 'No toppings', SYSDATETIME(), null, 0, 'walk-in', 'cash', null,'Sept2021', 1, 4, null)
 GO
 
