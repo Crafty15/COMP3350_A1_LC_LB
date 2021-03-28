@@ -129,6 +129,10 @@ BEGIN
 		DECLARE @taxAmount SMALLMONEY
 		SET @taxAmount = 0.1 * @totalCost
 
+		-- calculate total amount due
+		DECLARE @totalAmountDue SMALLMONEY
+		SET @totalAmountDue = @totalCost + @taxAmount - @discountAmount
+
 		-- check whether is delivery
 		DECLARE @isDelivery BIT
 		DECLARE @driverID INT
@@ -148,7 +152,7 @@ BEGIN
 		INSERT INTO FoodOrder(orderDateTime, discountAmount, tax, totalAmountDue, status, description, fulfillmentDateTime, completeDateTime, isDelivery,
 							  orderType, paymentMethod, paymentApprovalNumber, discountCode, customerID, workerID, driverID)
 		VALUES
-			(@orderDateTime, @discountAmount, @taxAmount, @totalCost, 'complete', 'something', @dateTimeOrderNeedsFulfilling, @dateTimeOrderComplete, @isDelivery, @type, 'card', @paymentConfirmation, @discountCode, @customerID, @orderTakeBy, @driverID)
+			(@orderDateTime, @discountAmount, @taxAmount, @totalAmountDue, 'complete', 'something', @dateTimeOrderNeedsFulfilling, @dateTimeOrderComplete, @isDelivery, @type, 'card', @paymentConfirmation, @discountCode, @customerID, @orderTakeBy, @driverID)
 	
 		-- get back automatically created order id to map to menu items ordered
 		DECLARE @orderID INT
