@@ -73,9 +73,7 @@ CREATE TABLE Customer
 	customerID INT IDENTITY(1,1) NOT NULL,
 	firstName VARCHAR(30) NOT NULL,
 	lastName VARCHAR(30) NOT NULL,
-	street VARCHAR(30) NOT NULL,
-	suburb VARCHAR(30) NOT NULL,
-	postcode INT NOT NULL CHECK (postcode < 10000),
+	address VARCHAR(70) NOT NULL,
 
 	PRIMARY KEY (customerID),
 );
@@ -294,14 +292,14 @@ VALUES
 GO
 
 
-INSERT INTO Customer(firstName, lastName, street, suburb, postcode)
+INSERT INTO Customer(firstName, lastName, address)
 VALUES
-	('Cleetus', 'McFarlane', '123 Redneck St', 'Daytona', 5432),
-	('Phil', 'McCrackin', '89 First St', 'Boolaroo', 2284),
-	('Steph', 'Smith', '1 Hill Rd', 'Lambton', 2267),
-	('Jill', 'Qwerty', '222 School Rd', 'Newcastle', 1123),
-	('Fred', 'Fredson', '67 Test St', 'TestTown', 4444),
-	('Hayden', 'Milkson', '567 Latte rd', 'Ourimbah', 3211)
+	('Cleetus', 'McFarlane', '123 Redneck St, Daytona 5432'),
+	('Phil', 'McCrackin', '89 First St, Boolaroo 2284'),
+	('Steph', 'Smith', '1 Hill Rd, Lambton 2267'),
+	('Jill', 'Qwerty', '222 School Rd, Newcastle 1123'),
+	('Fred', 'Fredson', '67 Test St, TestTown 4444'),
+	('Hayden', 'Milkson', '567 Latte rd, Ourimbah 3211')
 GO
 
 INSERT INTO CustomerOnlineCustomer(customerID, email, password, phone)
