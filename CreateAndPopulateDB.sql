@@ -189,6 +189,7 @@ CREATE TABLE FoodOrder
 	status VARCHAR(10) NOT NULL CHECK (status IN ('processing', 'complete')) DEFAULT 'processing' ,
 	description TEXT,
 	fulfillmentDateTime DATETIME,
+	completeDateTime DATETIME NULL,
 	isDelivery BIT NOT NULL,
 	orderType VARCHAR(10) NOT NULL CHECK (orderType IN ('phone', 'online', 'walk-in', 'guest')),
 	paymentMethod VARCHAR(10) NOT NULL CHECK (paymentMethod IN ('card', 'cash')),
@@ -356,17 +357,17 @@ VALUES
 	('2021-03-01 08:00:00','2021-03-01 20:00:00', null, 176.00, 1, 4)
 GO
 
-INSERT INTO FoodOrder(orderDateTime, discountAmount, tax, totalAmountDue, status, description, fulfillmentDateTime, isDelivery,
+INSERT INTO FoodOrder(orderDateTime, discountAmount, tax, totalAmountDue, status, description, fulfillmentDateTime, completeDateTime, isDelivery,
 				orderType, paymentMethod, paymentApprovalNumber, discountCode, customerID, workerID, driverID)
 VALUES
-	('2021-01-01 11:00:00', 10.00, 8.00, 50.12, 'complete', 'All pinapple', '2021-01-01 11:11:11', 0, 'phone', 'card', 021, 'oct2021', 4, 4, null),
-	('2021-02-11 09:00:00', 00.00, 2.00, 18.58, 'complete', 'Vegan', '2021-02-01 09:20:55', 1, 'online', 'cash', null, null, 6, 1, 2),
-	('2021-02-11 13:00:00', 15.00, 12.00, 133.50, 'complete', 'Gluten free', '2021-02-01 13:20:55', 0, 'walk-in', 'card', 003, 'nov2021', 3, 1, null),
-	('2021-03-01 10:00:00', 12.00, 2.00, 66.50, 'complete', 'All pepperoni', '2021-03-01 10:15:55', 1, 'guest', 'card', 002, 'Thurs2021', 3, 1, 3),
-	('2021-03-01 08:00:00', 00.00, 05.00, 40.00, 'complete', 'Extra cheese', '2021-03-01 08:30:00', 1, 'online', 'card', 001, 'E2021', 1, 4, 2),
-	(SYSDATETIME(), 00.00, 10.00, 100.00, DEFAULT, 'No nuts plz', SYSDATETIME(), 0, 'phone', 'cash', null, null, 4, 1, null),
-	(SYSDATETIME(), 5.00, 10.00, 60.00, DEFAULT, 'Extra banana', SYSDATETIME(), 1, 'guest', 'cash', null, 'Sept2021', 1, 4, null),
-	(SYSDATETIME(), 11.00, 10.00, 110.00, DEFAULT, 'No toppings', SYSDATETIME(), 0, 'walk-in', 'cash', null,'Sept2021', 1, 4, null)
+	('2021-01-01 11:00:00', 10.00, 8.00, 50.12, 'complete', 'All pinapple', '2021-01-01 11:15:11', '2021-01-01 11:10:11', 0, 'phone', 'card', 021, 'oct2021', 4, 4, null),
+	('2021-02-11 09:00:00', 00.00, 2.00, 18.58, 'complete', 'Vegan', '2021-02-01 09:15:55', '2021-02-01 09:10:55', 1, 'online', 'cash', null, null, 6, 1, 2),
+	('2021-02-11 13:00:00', 15.00, 12.00, 133.50, 'complete', 'Gluten free', '2021-02-01 13:15:55', '2021-02-01 13:10:55', 0, 'walk-in', 'card', 003, 'nov2021', 3, 1, null),
+	('2021-03-01 10:00:00', 12.00, 2.00, 66.50, 'complete', 'All pepperoni', '2021-03-01 10:15:55', '2021-03-01 10:10:55', 1, 'guest', 'card', 002, 'Thurs2021', 3, 1, 3),
+	('2021-03-01 08:00:00', 00.00, 05.00, 40.00, 'complete', 'Extra cheese', '2021-03-01 09:30:00', '2021-03-01 09:30:00', 1, 'online', 'card', 001, 'E2021', 1, 4, 2),
+	(SYSDATETIME(), 00.00, 10.00, 100.00, DEFAULT, 'No nuts plz', SYSDATETIME(), null, 0, 'phone', 'cash', null, null, 4, 1, null),
+	(SYSDATETIME(), 5.00, 10.00, 60.00, DEFAULT, 'Extra banana', SYSDATETIME(), null, 1, 'guest', 'cash', null, 'Sept2021', 1, 4, null),
+	(SYSDATETIME(), 11.00, 10.00, 110.00, DEFAULT, 'No toppings', SYSDATETIME(), null, 0, 'walk-in', 'cash', null,'Sept2021', 1, 4, null)
 GO
 
 INSERT INTO MenuItem(name, size, price) 
