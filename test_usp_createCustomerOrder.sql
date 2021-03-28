@@ -105,9 +105,9 @@ DECLARE	@someOrderTakeBy INT
 		(12, 2)
 	SET	@someDiscountCode = 'Sept2021'
 	SET	@someType = 'Cody'
-	SET	@someOrderDateTime = SYSDATETIME()
-	SET	@someDateTimeOrderNeedsFulfilling = NULL
-	SET	@someDateTimeOrderComplete = SYSDATETIME()
+	SET	@someOrderDateTime = '2021-03-28 22:38:00'
+	SET	@someDateTimeOrderNeedsFulfilling = '2021-03-28 23:38:00'
+	SET	@someDateTimeOrderComplete = '2021-03-28 22:38:00'
 	SET	@someDeliveryMode = 'pickup'
 	SET	@someDeliveryAddress = NULL
 	SET	@somePaymentConfirmation = 71
