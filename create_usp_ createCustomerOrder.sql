@@ -66,6 +66,60 @@ AS
 BEGIN
 	-- create order in order table
 	BEGIN TRY
+
+		-- declare cursor to access rows of items ordered one by one
+		DECLARE itemCursor CURSOR
+		FOR
+			SELECT	*
+			FROM	@items
+		FOR READ ONLY
+
+		-- declare variables to fetch individual rows
+		DECLARE @itemNumber INT
+		DECLARE @quantityOrdered INT
+
+		-- calculate total price of order
+			DECLARE @totalCost SMALLMONEY
+			SET @totalCost = 0
+
+			-- open and populate cursor
+			OPEN itemCursor
+
+			-- get first row
+			FETCH NEXT FROM itemCursor INTO @itemNumber, @quantityOrdered
+
+			DECLARE @itemPrice SMALLMONEY
+
+			-- get item by item from cursor
+			-- while still more rows
+			WHILE @@FETCH_STATUS = 0
+			BEGIN
+				BEGIN TRY
+					-- get the price for each item, multiply with quantity and add it to total
+					SET @itemPrice =
+						(
+							SELECT	price
+							FROM	MenuItem
+							WHERE	itemCode = @itemNumber
+						)
+					SET @totalCost = @totalCost + (@itemPrice * @quantityOrdered)
+
+				END TRY
+				BEGIN CATCH
+					DECLARE @error NVARCHAR(120)
+					SET @error = ERROR_MESSAGE();
+					RAISERROR (@error, 10, 1)
+				END CATCH
+
+				-- fetch next row
+				FETCH NEXT FROM itemCursor INTO @itemNumber, @quantityOrdered
+			END
+
+			-- close cursor
+			CLOSE itemCursor
+
+		
+		-- calcluate discount
 		DECLARE @discountPercentage DECIMAL
 		SET @discountPercentage = 
 			(
@@ -73,13 +127,42 @@ BEGIN
 				FROM	DiscountProgram
 				WHERE	discountCode = @discountCode
 			)
+		DECLARE @discountAmount SMALLMONEY
+		SET @discountAmount = @discountPercentage/100 * @totalCost
 
+		-- calculate tax
+		DECLARE @taxAmount SMALLMONEY
+		SET @taxAmount = 0.1 * @totalCost
 
+		-- check whether is delivery
+		DECLARE @isDelivery BIT
+		DECLARE @driverID INT
+		IF(@deliveryMode = 'delivery')
+		BEGIN
+			SET @isDelivery = 1
+			SET @driverID = 2
+		END
+		ELSE
+		BEGIN
+			SET @isDelivery = 0
+			SET @driverID = NULL
+		END
 
+		-- add order in order table
 		INSERT INTO FoodOrder(orderDateTime, discountAmount, tax, totalAmountDue, status, description, fulfillmentDateTime, completeDateTime, isDelivery,
-				orderType, paymentMethod, paymentApprovalNumber, discountCode, customerID, workerID, driverID)
+							  orderType, paymentMethod, paymentApprovalNumber, discountCode, customerID, workerID, driverID)
 		VALUES
-			(@orderDateTime, 10.00, 8.00, 50.12, 'complete', 'something', @dateTimeOrderNeedsFulfilling, '2021-01-01 11:10:11', 0, 'phone', 'card', 021, @discountCode, 4, 4, null),
+			(@orderDateTime, @discountAmount, @taxAmount, @totalCost, 'complete', 'something', @dateTimeOrderNeedsFulfilling, @dateTimeOrderComplete, @isDelivery, @type, 'card', @paymentConfirmation, @discountCode, @customerID, @orderTakeBy, @driverID)
+	
+		-- get back automatically created order id to map to menu items ordered
+		DECLARE @orderID INT
+		SET @orderID =
+			(
+				SELECT	*
+				FROM	
+			)
+
+
 	END TRY
 	BEGIN CATCH
 			DECLARE @error NVARCHAR(120)
@@ -88,47 +171,8 @@ BEGIN
 	END CATCH
 
 
-	-- declare cursor to access rows of items ordered one by one
-	DECLARE itemCursor CURSOR
-	FOR
-		SELECT	*
-		FROM	@items
-	FOR READ ONLY
-
-	-- open and populate cursor
-	OPEN itemCursor
-
-	-- declare variables to fetch individual rows
-	DECLARE @itemNumber INT
-	DECLARE @quantityOrdered INT
-
-	FETCH NEXT FROM itemCursor INTO @itemNumber, @quantityOrdered
-
-	-- insert row by row from cursor
-	-- while still more rows
-	WHILE @@FETCH_STATUS = 0
-	BEGIN
-		BEGIN TRY
-			-- insert that row
-			INSERT INTO Register (stdNo, courseID, semesterID)
-				VALUES (@rowStdNo, @rowCourseID, @rowSemesterID)
-		END TRY
-		BEGIN CATCH
-			DECLARE @error NVARCHAR(120)
-			SET @error = ERROR_MESSAGE();
-			RAISERROR (@error, 10, 1)
-		END CATCH
-
-		-- fetch next row
-		FETCH NEXT FROM itemCursor INTO @rowStdNo, @rowCourseID, @rowSemesterID
-		
-	END
-
-	-- close cursor
-	CLOSE itemCursor
-
 	-- removes the cursor reference
-	DEALLOCATE itemCursor
+			DEALLOCATE itemCursor
 END
 GO
 
