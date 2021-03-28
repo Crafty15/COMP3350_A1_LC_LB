@@ -1,7 +1,13 @@
---ASS1 3050, stored proc
 /*
-Create new customer order
+COMP3350 - Advanced Database
+Assignment 1 - Stored Procedure - Create an order
+Liam Craft		c3339847
+Lukas Binninger c3332295
+*/
 
+-- Create new customer order
+
+/*
 INPUTS: 
 customerID 
 TVP of items(itemCode, quantity) 
@@ -22,4 +28,17 @@ return the new order number
 raise error if there is one???
 
 */
+
+
+USE COMP3320_A1_PizzaDB
+GO
+
+DROP PROCEDURE usp_createCustomerOrder
+GO
+
+DROP TYPE usp_createCustomerOrder
+GO
+
+
+
 
