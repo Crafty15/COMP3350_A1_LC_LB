@@ -48,14 +48,19 @@ CREATE PROCEDURE usp_createCustomerOrder
 	@deliveryMode VARCHAR(8),
 	@deliveryAddress VARCHAR(70),
 	@paymentConfirmation INT,
-	@orderTakeBy INT
+	@orderTakeBy INT,
+
+	@orderID INT OUTPUT
 AS
 BEGIN
 	-- create order in order table, add entries in order menuItem table and decrease stock level in ingredients
 	BEGIN TRY
 	BEGIN TRANSACTION
-		-- test whether order is feasible -> check against ingredient's stock level
 
+		-- default value if no new order created
+		SET @orderID = -1
+
+		-- test whether order is feasible -> check against ingredient's stock level
 		DECLARE @feasible BIT
 		EXECUTE usp_enforceOrderSatisfiability @itemList = @items, @isFeasible = @feasible OUT
 
@@ -66,6 +71,7 @@ BEGIN
 			FROM	@items
 		FOR READ ONLY
 
+		-- if not feasible -> error
 		IF (@feasible = 0)
 		BEGIN
 			RAISERROR ('Error: Amount of available ingredients is infeasible for this order', 11, 1)
@@ -155,7 +161,7 @@ BEGIN
 			(@orderDateTime, @discountAmount, @taxAmount, @totalAmountDue, 'complete', 'something', @dateTimeOrderNeedsFulfilling, @dateTimeOrderComplete, @isDelivery, @type, 'card', @paymentConfirmation, @discountCode, @customerID, @orderTakeBy, @driverID)
 	
 		-- get back automatically created order id to map to menu items ordered
-		DECLARE @orderID INT
+		-- this order id will also be returned
 		SET @orderID =
 			(
 				SELECT	orderID

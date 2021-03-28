@@ -21,6 +21,8 @@ DECLARE	@someDeliveryAddress VARCHAR(70)
 DECLARE	@somePaymentConfirmation INT
 DECLARE	@someOrderTakeBy INT
 
+DECLARE @newOrderID INT
+
 -- #1
 -- should be feasible
 	-- add some data
@@ -43,7 +45,9 @@ DECLARE	@someOrderTakeBy INT
 	EXECUTE usp_CreateCustomerOrder @customerID = @someCustomerID, @items = @someItems, @discountCode = @someDiscountCode, @type = @someType,
 									@orderDateTime = @someOrderDateTime, @dateTimeOrderNeedsFulfilling = @someDateTimeOrderNeedsFulfilling,
 									@dateTimeOrderComplete = @someDateTimeOrderComplete, @deliveryMode = @someDeliveryMode, @deliveryAddress = @someDeliveryAddress,
-									@paymentConfirmation = @somePaymentConfirmation, @orderTakeBy = @someOrderTakeBy
+									@paymentConfirmation = @somePaymentConfirmation, @orderTakeBy = @someOrderTakeBy, @orderID = @newOrderID OUT
+	
+	PRINT @newOrderID
 
 -- #2
 -- should not be feasible after #1
@@ -67,7 +71,9 @@ DECLARE	@someOrderTakeBy INT
 	EXECUTE usp_CreateCustomerOrder @customerID = @someCustomerID, @items = @someItems, @discountCode = @someDiscountCode, @type = @someType,
 									@orderDateTime = @someOrderDateTime, @dateTimeOrderNeedsFulfilling = @someDateTimeOrderNeedsFulfilling,
 									@dateTimeOrderComplete = @someDateTimeOrderComplete, @deliveryMode = @someDeliveryMode, @deliveryAddress = @someDeliveryAddress,
-									@paymentConfirmation = @somePaymentConfirmation, @orderTakeBy = @someOrderTakeBy
+									@paymentConfirmation = @somePaymentConfirmation, @orderTakeBy = @someOrderTakeBy, @orderID = @newOrderID OUT
+	
+	PRINT @newOrderID
 
 -- #3
 -- should be feasible
@@ -92,7 +98,9 @@ DECLARE	@someOrderTakeBy INT
 	EXECUTE usp_CreateCustomerOrder @customerID = @someCustomerID, @items = @someItems, @discountCode = @someDiscountCode, @type = @someType,
 									@orderDateTime = @someOrderDateTime, @dateTimeOrderNeedsFulfilling = @someDateTimeOrderNeedsFulfilling,
 									@dateTimeOrderComplete = @someDateTimeOrderComplete, @deliveryMode = @someDeliveryMode, @deliveryAddress = @someDeliveryAddress,
-									@paymentConfirmation = @somePaymentConfirmation, @orderTakeBy = @someOrderTakeBy
+									@paymentConfirmation = @somePaymentConfirmation, @orderTakeBy = @someOrderTakeBy, @orderID = @newOrderID OUT
+	
+	PRINT @newOrderID
 
 -- #4
 -- should be invalid data: type is not one of the possible values
@@ -117,6 +125,8 @@ DECLARE	@someOrderTakeBy INT
 	EXECUTE usp_CreateCustomerOrder @customerID = @someCustomerID, @items = @someItems, @discountCode = @someDiscountCode, @type = @someType,
 									@orderDateTime = @someOrderDateTime, @dateTimeOrderNeedsFulfilling = @someDateTimeOrderNeedsFulfilling,
 									@dateTimeOrderComplete = @someDateTimeOrderComplete, @deliveryMode = @someDeliveryMode, @deliveryAddress = @someDeliveryAddress,
-									@paymentConfirmation = @somePaymentConfirmation, @orderTakeBy = @someOrderTakeBy
+									@paymentConfirmation = @somePaymentConfirmation, @orderTakeBy = @someOrderTakeBy, @orderID = @newOrderID OUT
+	
+	PRINT @newOrderID
 
 GO

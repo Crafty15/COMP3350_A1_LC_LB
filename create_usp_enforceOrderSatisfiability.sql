@@ -30,6 +30,7 @@ CREATE PROCEDURE usp_enforceOrderSatisfiability
 	@isFeasible BIT OUTPUT
 AS
 BEGIN
+		-- default is feasible
 		SET @isFeasible = 1
 
 		-- declare cursor to access rows of items ordered one by one
